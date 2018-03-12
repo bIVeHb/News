@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,11 +23,13 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import biv.ru.news.R;
+import biv.ru.news.adapter.ILoadMore;
 import biv.ru.news.adapter.RvLinksAdapter;
 import rx.Observable;
 import rx.Observer;
@@ -45,6 +49,7 @@ public class RecycleViewFragment extends Fragment {
     private List<String> mListTitles = new ArrayList<>();
     private List<String> mListLinks = new ArrayList<>();
     private Context mContext;
+    private Activity mActivity;
 
 
     private String mUrl;
@@ -76,24 +81,20 @@ public class RecycleViewFragment extends Fragment {
         RxExample myRx = new RxExample();
         myRx.example0(mUrl);
 
+        Log.i("News", "mListLinks size = " + String.valueOf(mListLinks.size()));
 
 
-        Observable<String> observable = Observable.from(mListLinks);
+        if (mListLinks.size() == 0)
+            return null;
+        else
+            getTitles2(0, 5, myRx);
 
-        Action1<String> action = new Action1<String>() {
-            @Override
-            public void call(String s) {
-                myRx.example2(s);
-            }
-        };
-
-        observable.subscribe(action);
 
 
 
         //Log.i("News", mListTitles.toString());
         Log.i("News", "mListTitles size = " + String.valueOf(mListTitles.size()));
-        Log.i("News", "mListLinks size = " + String.valueOf(mListLinks.size()));
+        //Log.i("News", "mListLinks size = " + String.valueOf(mListLinks.size()));
 
 
         //getTitles();
@@ -105,15 +106,41 @@ public class RecycleViewFragment extends Fragment {
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         mRecyclerViewLinks.setLayoutManager(llm);
 
+
         mRecyclerViewLinks.setNestedScrollingEnabled(false);
         mRecyclerViewLinks.setItemViewCacheSize(50);
         mRecyclerViewLinks.setDrawingCacheEnabled(true);
         mRecyclerViewLinks.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
-        RvLinksAdapter adapter = new RvLinksAdapter(mListTitles, mContext);
+        RvLinksAdapter adapter = new RvLinksAdapter(mListTitles, mRecyclerViewLinks, mContext);
         mRecyclerViewLinks.setAdapter(adapter);
 
-        adapter.notifyDataSetChanged();
+        adapter.setLoadMore(new ILoadMore() {
+            @Override
+            public void onLoadMore() {
+                if (mListTitles.size() <= 50) {
+                    mListTitles.add(null);
+                    adapter.notifyItemInserted(mListTitles.size() - 1);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            mListTitles.remove(mListTitles.size() - 1);
+                            adapter.notifyItemRemoved(mListTitles.size());
+
+                            //add more titles
+                            int index = mListTitles.size();
+                            int end = index + 5;
+                            getTitles2(index, end, myRx);
+                            adapter.notifyDataSetChanged();
+                            adapter.setLoaded();
+                        }
+                    }, 1000);
+                } else {
+                    Toast.makeText(mActivity, "Load data completed !!!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         return rootView;
     }
@@ -183,6 +210,26 @@ public class RecycleViewFragment extends Fragment {
         }
         return listString;
     }*/
+
+    public void getTitles2 (int indexStart, int indexEnd, RxExample example){
+
+        Log.i("News", "mListLinks.subList size = " + String.valueOf(mListLinks.subList(indexStart, indexEnd)));
+
+
+        Observable<String> observable = Observable.from(mListLinks.subList(indexStart, indexEnd));
+
+        Action1<String> action = new Action1<String>() {
+            @Override
+            public void call(String s) {
+                example.example2(s);
+            }
+        };
+
+        observable.subscribe(action);
+
+
+
+    }
 
     class RxExample {
 

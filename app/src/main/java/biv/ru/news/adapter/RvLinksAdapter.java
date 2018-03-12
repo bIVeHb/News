@@ -21,6 +21,7 @@ import java.util.List;
 
 import biv.ru.news.R;
 import biv.ru.news.adapter.viewholder.LinksViewHolder;
+import biv.ru.news.adapter.viewholder.LoadingViewHolder;
 
 import static android.content.ContentValues.TAG;
 
@@ -29,33 +30,81 @@ import static android.content.ContentValues.TAG;
  * Created by bIVeHb on 27.02.2018.
  */
 
-public class RvLinksAdapter extends RecyclerView.Adapter<LinksViewHolder> {
+public class RvLinksAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<String> mLinks = new ArrayList<>();
 
     private Context mContext;
 
+    private final int VIEW_TYPE_ITEM = 0, VIEW_TYPE_LOADING = 1;
+    private ILoadMore mLoadMore;
+    private boolean mIsLoading;
+    private Context mActivity;
+
+    private int mVisibleThreshold = 5;
+    private int mLastVisibleItem;
+    private int mTotalItemCount;
+
 
     @Nullable
     private LinksViewHolder.LinkClickListener mLinkClickListener;
 
-    public RvLinksAdapter (List<String> links, Context context) {
+    public RvLinksAdapter (List<String> links, RecyclerView recyclerView, Context activity) {
         mLinks.clear();
         mLinks.addAll(links);
-        mContext = context;
+        this.mActivity = activity;
+        //mContext = context;
+
+        final LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                mTotalItemCount = linearLayoutManager.getItemCount();
+                mLastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
+
+                if (!mIsLoading && mTotalItemCount <= (mLastVisibleItem + mVisibleThreshold)){
+                    if (mLoadMore != null){
+                        mLoadMore.onLoadMore();
+                    }
+                    mIsLoading = true;
+                }
+            }
+        });
     }
 
     @Override
-    public LinksViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_links, parent, false);
-        return new LinksViewHolder(v);
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+/*        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_links, parent, false);
+        return new LinksViewHolder(v);*/
+
+        if (viewType == VIEW_TYPE_ITEM) {
+            View view = LayoutInflater.from(mActivity).inflate(R.layout.item_links, parent, false);
+            return new LinksViewHolder(view);
+        } else if (viewType == VIEW_TYPE_LOADING){
+            View view = LayoutInflater.from(mActivity).inflate(R.layout.item_loading, parent, false);
+            return new LoadingViewHolder(view);
+        }
+        return null;
     }
 
+
     @Override
-    public void onBindViewHolder(LinksViewHolder holder, int position) {
-        holder.bindView(mLinks, mLinkClickListener, mContext);
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+/*        holder.bindView(mLinks, mLinkClickListener, mContext);
         holder.mTextTitle.setText(mLinks.get(position));
-        holder.mTextNumber.setText(String.valueOf(position + 1));
+        holder.mTextNumber.setText(String.valueOf(position + 1));*/
+
+        if (holder instanceof LinksViewHolder) {
+            LinksViewHolder viewHolder = (LinksViewHolder) holder;
+            viewHolder.mTextNumber.setText(String.valueOf(position + 1));
+            viewHolder.mTextTitle.setText(mLinks.get(position));
+        } else if (holder instanceof LoadingViewHolder) {
+            LoadingViewHolder loadingHolder = (LoadingViewHolder) holder;
+            loadingHolder.progressBar.setIndeterminate(true);
+        }
     }
 
 
@@ -68,9 +117,32 @@ public class RvLinksAdapter extends RecyclerView.Adapter<LinksViewHolder> {
         return mLinks.size();
     }
 
-    @Override
+    public void setLoaded() {
+        mIsLoading = false;
+    }
+
+/*    @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
+    }*/
+
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        int layoutPosition = holder.getLayoutPosition();
+        Log.d(TAG, "onViewAttachedToWindow: getayoutPosition = " + layoutPosition);
+
+        layoutPosition = holder.getAdapterPosition();
+        Log.d(TAG, "onViewAttachedToWindow: getAdapterPosition = " + layoutPosition);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return mLinks.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
+    }
+
+    public void setLoadMore(ILoadMore loadMore) {
+        this.mLoadMore = loadMore;
     }
 
 }
