@@ -4,8 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,7 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.jsoup.Jsoup;
@@ -21,9 +18,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,7 +27,6 @@ import biv.ru.news.R;
 import biv.ru.news.adapter.ILoadMore;
 import biv.ru.news.adapter.RvLinksAdapter;
 import rx.Observable;
-import rx.Observer;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -79,12 +73,12 @@ public class RecycleViewFragment extends Fragment {
 
         // Inflate the layout for this fragment
 
-        example0(mUrl);
+        rxGetURLs(mUrl);
 
         if (mListLinks.size() == 0)
             return null;
         else
-            example1(0, 5);
+            rxGetTitles(0, 5);
 
 
         Log.i("News", "mListTitles size = " + String.valueOf(mListTitles.size()));
@@ -119,7 +113,7 @@ public class RecycleViewFragment extends Fragment {
                     //add more titles
                     int indexStart = mListTitles.size();
                     int indexEnd = indexStart + 5;
-                    example1(indexStart, indexEnd);
+                    rxGetTitles(indexStart, indexEnd);
                     adapter.notifyDataSetChanged();
                     adapter.setLoaded();
 
@@ -229,36 +223,36 @@ public class RecycleViewFragment extends Fragment {
         }
     };
 
-    public void example0(String url) {
+    public void rxGetURLs(String url) {
         queryURLs(url)
                 .subscribe(new Action1<List<String>>() {
                     @Override
                     public void call(List<String> urls) {
-                        Log.i("News", "queryURLs example0");
+                        Log.i("News", "queryURLs rxGetURLs");
                         mListLinks.clear();
                         mListLinks.addAll(urls);
                     }
                 });
     }
 
-    public void example1(int indexStart, int indexEnd) {
+    public void rxGetTitles(int indexStart, int indexEnd) {
         queryTitles(indexStart, indexEnd)
                 .subscribe(new Action1<List<String>>() {
                     @Override
                     public void call(List<String> titles) {
-                        Log.i("News", "queryTitles example1");
+                        Log.i("News", "queryTitles rxGetTitles");
                         mListTitles.clear();
                         mListTitles.addAll(titles);
                     }
                 });
     }
 
-    public void example2(String url) {
+    public void rxGetTitle(String url) {
         queryTitle(url)
                 .subscribe(new Action1<String>() {
                     @Override
                     public void call(String title) {
-                        Log.i("News", "queryTitle example2");
+                        Log.i("News", "queryTitle rxGetTitle");
                         //mListTitles.clear();
                         mListTitles.add(title);
                     }
