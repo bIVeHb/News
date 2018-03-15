@@ -16,27 +16,12 @@ import biv.ru.news.adapter.RvLinksAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
-
-    private List<String> mListLinks;
-    private final List<String> mListTitles = new ArrayList<>();
-
-    private List<String> mHtml;
-    private RecyclerView mRecyclerViewLinks;
     private TabLayout mTabLayout;
-    private String mUrlHour = "https://mediametrics.ru/rating/ru/hour.html";
-    private String mUrlDay = "https://mediametrics.ru/rating/ru/day.html";
-    private String mUrlWeek = "https://mediametrics.ru/rating/ru/week.html";
-    private String mUrlMonth = "https://mediametrics.ru/rating/ru/month.html";
-    private RvLinksAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        mRecyclerViewLinks = (RecyclerView) findViewById(R.id.recyclerViewLinks);
-        mListLinks = new ArrayList<>();
-        mHtml = new ArrayList<>();
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
         MyPagerAdapter pagerAdapter = new MyPagerAdapter(getSupportFragmentManager(), this);
