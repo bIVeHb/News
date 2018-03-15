@@ -12,10 +12,10 @@ import biv.ru.news.R;
 
 public class LoadingViewHolder extends RecyclerView.ViewHolder {
 
-    public ProgressBar progressBar;
+    public ProgressBar mProgressBar;
 
     public LoadingViewHolder(View itemView) {
         super(itemView);
-        progressBar = (ProgressBar) itemView.findViewById(R.id.progressBar);
+        mProgressBar = (ProgressBar) itemView.findViewById(R.id.progressBar);
     }
 }

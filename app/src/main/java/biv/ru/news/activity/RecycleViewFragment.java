@@ -60,7 +60,7 @@ public class RecycleViewFragment extends Fragment {
 
     @SuppressLint("ValidFragment")
     public RecycleViewFragment(String url, Context context) {
-        //mListTitles.clear();
+        mListTitles.clear();
         mUrl = url;
         mContext = context;
 
@@ -76,6 +76,7 @@ public class RecycleViewFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
 
         example0(mUrl);
@@ -86,12 +87,7 @@ public class RecycleViewFragment extends Fragment {
             example1(0, 5);
 
 
-        //Log.i("News", mListTitles.toString());
         Log.i("News", "mListTitles size = " + String.valueOf(mListTitles.size()));
-        //Log.i("News", "mListLinks size = " + String.valueOf(mListLinks.size()));
-
-
-        //getTitles();
 
         View rootView = inflater.inflate(R.layout.fragment_recycle_view, container, false);
 

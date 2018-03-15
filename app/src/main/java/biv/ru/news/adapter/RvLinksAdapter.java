@@ -77,8 +77,6 @@ public class RvLinksAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-/*        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_links, parent, false);
-        return new LinksViewHolder(v);*/
 
         if (viewType == VIEW_TYPE_ITEM) {
             View view = LayoutInflater.from(mActivity).inflate(R.layout.item_links, parent, false);
@@ -93,9 +91,6 @@ public class RvLinksAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-/*        holder.bindView(mLinks, mLinkClickListener, mContext);
-        holder.mTextTitle.setText(mLinks.get(position));
-        holder.mTextNumber.setText(String.valueOf(position + 1));*/
 
         if (holder instanceof LinksViewHolder) {
             LinksViewHolder viewHolder = (LinksViewHolder) holder;
@@ -103,7 +98,7 @@ public class RvLinksAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             viewHolder.mTextTitle.setText(mLinks.get(position));
         } else if (holder instanceof LoadingViewHolder) {
             LoadingViewHolder loadingHolder = (LoadingViewHolder) holder;
-            loadingHolder.progressBar.setIndeterminate(true);
+            loadingHolder.mProgressBar.setIndeterminate(true);
         }
     }
 
@@ -121,10 +116,6 @@ public class RvLinksAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         mIsLoading = false;
     }
 
-/*    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-    }*/
 
     @Override
     public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
