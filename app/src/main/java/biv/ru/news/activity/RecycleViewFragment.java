@@ -133,18 +133,6 @@ public class RecycleViewFragment extends Fragment {
     }
 
 
-    public void getAllLinks(String url) {
-        queryURLs(url)
-                .subscribe(new Action1<List<String>>() {
-                    @Override
-                    public void call(List<String> urls) {
-                        Log.i("News", "queryURLs");
-                        mListLinks.clear();
-                        mListLinks.addAll(urls);
-                    }
-                });
-    }
-
     Func1<List<String>, List<String>> getTitles = new Func1<List<String>, List<String>>() {
         String url = "";
         List<String> listTitles = new ArrayList<>();
