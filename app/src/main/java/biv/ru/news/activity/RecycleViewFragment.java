@@ -72,22 +72,18 @@ public class RecycleViewFragment extends Fragment {
 
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-
-        RxExample myRx = new RxExample();
-        myRx.example0(mUrl);
-
-        Log.i("News", "mListLinks size = " + String.valueOf(mListLinks.size()));
-
+        example0(mUrl);
 
         if (mListLinks.size() == 0)
             return null;
         else
-            getTitles2(0, 5, myRx);
+            example1(0, 5);
 
 
         //Log.i("News", mListTitles.toString());
@@ -125,9 +121,9 @@ public class RecycleViewFragment extends Fragment {
                     adapter.notifyItemRemoved(mListTitles.size());
 
                     //add more titles
-                    int index = mListTitles.size();
-                    int end = index + 5;
-                    getTitles2(index, end, myRx);
+                    int indexStart = mListTitles.size();
+                    int indexEnd = indexStart + 5;
+                    example1(indexStart, indexEnd);
                     adapter.notifyDataSetChanged();
                     adapter.setLoaded();
 
@@ -141,136 +137,26 @@ public class RecycleViewFragment extends Fragment {
     }
 
 
-/*    // get title from list of links
-    private List<String> getTitles() {
-
-        for (int j = 0; j < mListLinks.size(); j++) {
-            try {
-                String url = mListLinks.get(j);
-                if (!url.startsWith("http://")) {
-                    url = "http://" + url;
-                }
-
-                Document document = Jsoup.connect(url)
-                        .userAgent("Mozilla/5.0")
-                        .get();
-                String title = document.title();
-                mListTitles.add(title);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        Log.i("TopNews", "afterCompile mListTitles size = " + String.valueOf(mListTitles.size()));
-        return mListTitles;
-    }*/
-
-/*    //get list of links from URL
-    private List<String> getListLinks(String url) {
-
-        List<String> listString = new ArrayList<>();
-        List<String> html = new ArrayList<>();
-
-        Elements links = null;
-
-        try {
-            Document doc = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0")
-                    .get();
-            links = doc.getElementsByClass("wrapper");
-
-            Log.i("TopNews", "(method getListLinks)links size = " + String.valueOf(links.size()));
-
-            for (int k = 0; k < links.size(); k++) {
-                html.add(links.get(k).toString());
-            }
-
-            Log.i("TopNews", "(method getListLinks)mHtml size = " + String.valueOf(html.size()));
-
-            for (int i = 0; i < html.size(); i++) {
-
-                Pattern p = Pattern.compile("(\\\\n)(.*?)[\\\\\\t]");
-                Matcher m = p.matcher(html.get(i));
-
-                while (m.find()) {
-
-                    listString.add(m.group(2));
-                }
-            }
-
-            Log.i("TopNews", "afterCompile mListLinks size = " + String.valueOf(listString.size()));
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return listString;
-    }*/
-
-    public void getTitles2(int indexStart, int indexEnd, RxExample example) {
-
-        Log.i("News", "mListLinks.subList size = " + String.valueOf(mListLinks.subList(indexStart, indexEnd)));
-
-
-        Observable<String> observable = Observable.from(mListLinks.subList(indexStart, indexEnd));
-
-        Action1<String> action = new Action1<String>() {
-            @Override
-            public void call(String s) {
-                example.example2(s);
-            }
-        };
-
-        observable.subscribe(action);
-
-
+    public void getAllLinks(String url) {
+        queryURLs(url)
+                .subscribe(new Action1<List<String>>() {
+                    @Override
+                    public void call(List<String> urls) {
+                        Log.i("News", "queryURLs");
+                        mListLinks.clear();
+                        mListLinks.addAll(urls);
+                    }
+                });
     }
 
-    class RxExample {
+    Func1<List<String>, List<String>> getTitles = new Func1<List<String>, List<String>>() {
+        String url = "";
+        List<String> listTitles = new ArrayList<>();
 
-        RxExample() {
-        }
-
-/*        mListLinks = myRx.getLinks.call(mUrl);
-
-        for (int i = 0; i < mListLinks.size(); i++) {
-            mListTitles.add(myRx.getTitle.call(mListLinks.get(i)));
-        }*/
-
-        Func1<List<String>, List<String>> getTitles = new Func1<List<String>, List<String>>() {
-            String url = "";
-            List<String> listTitles = new ArrayList<>();
-
-            @Override
-            public List<String> call(List<String> urls) {
-                for (int i = 0; i < urls.size(); i++) {
-                    url = urls.get(i);
-                    try {
-                        if (!url.startsWith("http://")) {
-                            url = "http://" + url;
-                        }
-                        Document document = Jsoup.connect(url)
-                                .userAgent("Mozilla/5.0")
-                                .get();
-                        String title = document.title();
-                        listTitles.add(title);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    Log.i("News", "Rx getTitles listTitles size = " + String.valueOf(listTitles.size()));
-                }
-                return listTitles;
-
-            }
-        };
-
-        Func1<String, String> getTitle = new Func1<String, String>() {
-
-            String title = "";
-
-            @Override
-            public String call(String url) {
-
+        @Override
+        public List<String> call(List<String> urls) {
+            for (int i = 0; i < urls.size(); i++) {
+                url = urls.get(i);
                 try {
                     if (!url.startsWith("http://")) {
                         url = "http://" + url;
@@ -278,142 +164,169 @@ public class RecycleViewFragment extends Fragment {
                     Document document = Jsoup.connect(url)
                             .userAgent("Mozilla/5.0")
                             .get();
-                    title = document.title();
-
+                    String title = document.title();
+                    listTitles.add(title);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
-
-                return title;
+                Log.i("News", "Rx getTitles listTitles size = " + String.valueOf(listTitles.size()));
             }
-        };
+            return listTitles;
 
-        Func1<String, List<String>> getLinks = new Func1<String, List<String>>() {
-            @Override
-            public List<String> call(String url) {
-                List<String> listString = new ArrayList<>();
-                List<String> html = new ArrayList<>();
+        }
+    };
 
-                Elements links = null;
+    Func1<String, String> getTitle = new Func1<String, String>() {
 
-                try {
-                    Document doc = Jsoup.connect(url)
-                            .userAgent("Mozilla/5.0")
-                            .get();
-                    links = doc.getElementsByClass("wrapper");
+        String title = "";
 
+        @Override
+        public String call(String url) {
 
-                    for (int k = 0; k < links.size(); k++) {
-                        html.add(links.get(k).toString());
-                    }
-
-
-                    for (int i = 0; i < html.size(); i++) {
-
-                        Pattern p = Pattern.compile("(\\\\n)(.*?)[\\\\\\t]");
-                        Matcher m = p.matcher(html.get(i));
-
-                        while (m.find()) {
-
-                            //getTitle.call(m.group(2));
-                            //listString.add(getTitle.call(m.group(2)));
-                            listString.add(m.group(2));
-                        }
-                    }
-
-                    Log.i("News", "Rx getLinks listLinks size = " + String.valueOf(listString.size()));
-
-
-                } catch (IOException e) {
-                    e.printStackTrace();
+            try {
+                if (!url.startsWith("http://")) {
+                    url = "http://" + url;
                 }
-                return listString;
+                Document document = Jsoup.connect(url)
+                        .userAgent("Mozilla/5.0")
+                        .get();
+                title = document.title();
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        };
 
-        void example0(String url) {
-            queryURLs(url)
-                    .subscribe(new Action1<List<String>>() {
-                        @Override
-                        public void call(List<String> urls) {
-                            Log.i("News", "queryURLs example0");
-                            mListLinks.clear();
-                            mListLinks.addAll(urls);
-                        }
-                    });
+
+            return title;
         }
+    };
 
-        void example1() {
-            queryTitles()
-                    .subscribe(new Action1<List<String>>() {
-                        @Override
-                        public void call(List<String> titles) {
-                            Log.i("News", "queryTitles example1");
-                            mListTitles.clear();
-                            mListTitles.addAll(titles);
-                        }
-                    });
-        }
+    Func1<String, List<String>> getLinks = new Func1<String, List<String>>() {
+        @Override
+        public List<String> call(String url) {
+            List<String> listString = new ArrayList<>();
+            List<String> html = new ArrayList<>();
 
-        void example2(String url) {
-            queryTitle(url)
-                    .subscribe(new Action1<String>() {
-                        @Override
-                        public void call(String title) {
-                            Log.i("News", "queryTitle example2");
-                            //mListTitles.clear();
-                            mListTitles.add(title);
-                        }
-                    });
-        }
+            Elements links = null;
 
-        // строка объявляет Observable метод, который принимает в виде входного параметра ссылку на сайт для парсинга
-        // и возвращает результат парсинга в виде списка ссылок <List> с указанного сайта;
-        Observable<List<String>> queryURLs(String url) {
-            //  создает Observable, возвращающего список ссылок;
-            return Observable.create(
-                    // строка объявляет интерфейс OnSubscribe с одним методом (см. ниже), который вызовется при подписке;
-                    new Observable.OnSubscribe<List<String>>() {
-                        // перегружает метод call, который будет вызываться после подписки Subscriber;
-                        @Override
-                        public void call(Subscriber<? super List<String>> subscriber) {
-                            // вызывает метод onNext для передачи данных Subscriber всякий раз, когда порождаются данные.
-                            // Этот метод принимает в качестве параметра объект, испускаемый Observable;
-                            subscriber.onNext(getLinks.call(url));
-                            // Observable вызывает метод onCompleted() после того, как вызывает onNext в последний раз,
-                            // если не было обнаружено никаких ошибок;
-                            //subscriber.onError(new IOException("no permission / no internet / etc"));
-                            subscriber.onCompleted();
+            try {
+                Document doc = Jsoup.connect(url)
+                        .userAgent("Mozilla/5.0")
+                        .get();
+                links = doc.getElementsByClass("wrapper");
 
-                        }
-                        // subscribeOn(Schedulers.io()) — метод subscribeOn подписывает всех Observable выше по цепочке на планировщик Schedulers.io();
-                        // observeOn(AndroidSchedulers.mainThread()) — метод observeOn позволяет получить результат в основном потоке приложения.
-                    }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
-        }
 
-        Observable<List<String>> queryTitles() {
-            return Observable.create(new Observable.OnSubscribe<List<String>>() {
-                @Override
-                public void call(Subscriber<? super List<String>> subscriber) {
-                    Log.i("News", "Before queryTitles mListLinks.size = " + String.valueOf(mListLinks.size()));
-                    subscriber.onNext(getTitles.call(mListLinks));
-                    subscriber.onCompleted();
-                    Log.i("News", "After queryTitles mListLinks.size = " + String.valueOf(mListLinks.size()));
+                for (int k = 0; k < links.size(); k++) {
+                    html.add(links.get(k).toString());
                 }
-            }).subscribeOn(Schedulers.io());
-        }
 
-        Observable<String> queryTitle(String url) {
-            return Observable.create(new Observable.OnSubscribe<String>() {
-                @Override
-                public void call(Subscriber<? super String> subscriber) {
-                    //Log.i("News", "queryTitles mListLinks.size = " + String.valueOf(mListLinks.size()));
-                    subscriber.onNext(getTitle.call(url));
-                    subscriber.onCompleted();
+
+                for (int i = 0; i < html.size(); i++) {
+
+                    Pattern p = Pattern.compile("(\\\\n)(.*?)[\\\\\\t]");
+                    Matcher m = p.matcher(html.get(i));
+
+                    while (m.find()) {
+
+                        //getTitle.call(m.group(2));
+                        //listString.add(getTitle.call(m.group(2)));
+                        listString.add(m.group(2));
+                    }
                 }
-            }).subscribeOn(Schedulers.io());
+
+                Log.i("News", "Rx getLinks listLinks size = " + String.valueOf(listString.size()));
+
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return listString;
         }
+    };
+
+    public void example0(String url) {
+        queryURLs(url)
+                .subscribe(new Action1<List<String>>() {
+                    @Override
+                    public void call(List<String> urls) {
+                        Log.i("News", "queryURLs example0");
+                        mListLinks.clear();
+                        mListLinks.addAll(urls);
+                    }
+                });
     }
+
+    public void example1(int indexStart, int indexEnd) {
+        queryTitles(indexStart, indexEnd)
+                .subscribe(new Action1<List<String>>() {
+                    @Override
+                    public void call(List<String> titles) {
+                        Log.i("News", "queryTitles example1");
+                        mListTitles.clear();
+                        mListTitles.addAll(titles);
+                    }
+                });
+    }
+
+    public void example2(String url) {
+        queryTitle(url)
+                .subscribe(new Action1<String>() {
+                    @Override
+                    public void call(String title) {
+                        Log.i("News", "queryTitle example2");
+                        //mListTitles.clear();
+                        mListTitles.add(title);
+                    }
+                });
+    }
+
+    // строка объявляет Observable метод, который принимает в виде входного параметра ссылку на сайт для парсинга
+    // и возвращает результат парсинга в виде списка ссылок <List> с указанного сайта;
+    Observable<List<String>> queryURLs(String url) {
+        //  создает Observable, возвращающего список ссылок;
+        return Observable.create(
+                // строка объявляет интерфейс OnSubscribe с одним методом (см. ниже), который вызовется при подписке;
+                new Observable.OnSubscribe<List<String>>() {
+                    // перегружает метод call, который будет вызываться после подписки Subscriber;
+                    @Override
+                    public void call(Subscriber<? super List<String>> subscriber) {
+                        // вызывает метод onNext для передачи данных Subscriber всякий раз, когда порождаются данные.
+                        // Этот метод принимает в качестве параметра объект, испускаемый Observable;
+                        subscriber.onNext(getLinks.call(url));
+                        // Observable вызывает метод onCompleted() после того, как вызывает onNext в последний раз,
+                        // если не было обнаружено никаких ошибок;
+                        //subscriber.onError(new IOException("no permission / no internet / etc"));
+                        subscriber.onCompleted();
+
+                    }
+                    // subscribeOn(Schedulers.io()) — метод subscribeOn подписывает всех Observable выше по цепочке на планировщик Schedulers.io();
+                    // observeOn(AndroidSchedulers.mainThread()) — метод observeOn позволяет получить результат в основном потоке приложения.
+                }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+    }
+
+    Observable<List<String>> queryTitles(int indexStart, int indexEnd) {
+        return Observable.create(new Observable.OnSubscribe<List<String>>() {
+            @Override
+            public void call(Subscriber<? super List<String>> subscriber) {
+                Log.i("News", "Before queryTitles mListLinks.size = " + String.valueOf(mListLinks.size()));
+                subscriber.onNext(getTitles.call(mListLinks.subList(indexStart, indexEnd)));
+                subscriber.onCompleted();
+                Log.i("News", "After queryTitles mListLinks.size = " + String.valueOf(mListLinks.size()));
+            }
+        }).subscribeOn(Schedulers.io());
+    }
+
+    Observable<String> queryTitle(String url) {
+        return Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                //Log.i("News", "queryTitles mListLinks.size = " + String.valueOf(mListLinks.size()));
+                subscriber.onNext(getTitle.call(url));
+                subscriber.onCompleted();
+            }
+        }).subscribeOn(Schedulers.io());
+    }
+
 }
 
