@@ -128,6 +128,7 @@ public class RecycleViewFragment extends Fragment {
 
 
     Func1<List<String>, List<String>> getTitles = new Func1<List<String>, List<String>>() {
+
         String url = "";
         List<String> listTitles = new ArrayList<>();
 
@@ -181,10 +182,12 @@ public class RecycleViewFragment extends Fragment {
     };
 
     Func1<String, List<String>> getLinks = new Func1<String, List<String>>() {
+
+        List<String> listString = new ArrayList<>();
+        List<String> html = new ArrayList<>();
+
         @Override
         public List<String> call(String url) {
-            List<String> listString = new ArrayList<>();
-            List<String> html = new ArrayList<>();
 
             Elements links = null;
 
@@ -288,7 +291,8 @@ public class RecycleViewFragment extends Fragment {
             @Override
             public void call(Subscriber<? super List<String>> subscriber) {
                 Log.i("News", "Before queryTitles mListLinks.size = " + String.valueOf(mListLinks.size()));
-                subscriber.onNext(getTitles.call(mListLinks.subList(indexStart, indexEnd)));
+                subscriber.onNext(getTitles.call(new ArrayList<>(mListLinks.subList(indexStart, indexEnd))));
+
                 subscriber.onCompleted();
                 Log.i("News", "After queryTitles mListLinks.size = " + String.valueOf(mListLinks.size()));
             }
