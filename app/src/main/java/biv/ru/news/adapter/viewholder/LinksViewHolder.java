@@ -13,16 +13,6 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.webkit.WebView;
-import android.widget.TextView;
-
-import java.util.List;
-
 import biv.ru.news.R;
 
 /**
@@ -43,7 +33,7 @@ public class LinksViewHolder extends RecyclerView.ViewHolder{
     }
 
     public interface LinkClickListener{
-        void onLinkClik(@NonNull List<String> links);
+        void onLinkClick(@NonNull List<String> links);
     }
 
     // Передаем сюда модель из адаптера
@@ -52,7 +42,7 @@ public class LinksViewHolder extends RecyclerView.ViewHolder{
             @Override
             public void onClick(View v) {
                 if(linkClickListener != null){
-                    linkClickListener.onLinkClik(links);
+                    linkClickListener.onLinkClick(links);
                 }
             }
         });

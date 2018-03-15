@@ -60,7 +60,7 @@ public class RecycleViewFragment extends Fragment {
 
     @SuppressLint("ValidFragment")
     public RecycleViewFragment(String url, Context context) {
-        mListTitles.clear();
+        //mListTitles.clear();
         mUrl = url;
         mContext = context;
 
@@ -88,8 +88,6 @@ public class RecycleViewFragment extends Fragment {
             return null;
         else
             getTitles2(0, 5, myRx);
-
-
 
 
         //Log.i("News", mListTitles.toString());
@@ -121,21 +119,18 @@ public class RecycleViewFragment extends Fragment {
                 if (mListTitles.size() <= 50) {
                     mListTitles.add(null);
                     adapter.notifyItemInserted(mListTitles.size() - 1);
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
 
-                            mListTitles.remove(mListTitles.size() - 1);
-                            adapter.notifyItemRemoved(mListTitles.size());
 
-                            //add more titles
-                            int index = mListTitles.size();
-                            int end = index + 5;
-                            getTitles2(index, end, myRx);
-                            adapter.notifyDataSetChanged();
-                            adapter.setLoaded();
-                        }
-                    }, 1000);
+                    mListTitles.remove(mListTitles.size() - 1);
+                    adapter.notifyItemRemoved(mListTitles.size());
+
+                    //add more titles
+                    int index = mListTitles.size();
+                    int end = index + 5;
+                    getTitles2(index, end, myRx);
+                    adapter.notifyDataSetChanged();
+                    adapter.setLoaded();
+
                 } else {
                     Toast.makeText(mActivity, "Load data completed !!!", Toast.LENGTH_SHORT).show();
                 }
@@ -211,7 +206,7 @@ public class RecycleViewFragment extends Fragment {
         return listString;
     }*/
 
-    public void getTitles2 (int indexStart, int indexEnd, RxExample example){
+    public void getTitles2(int indexStart, int indexEnd, RxExample example) {
 
         Log.i("News", "mListLinks.subList size = " + String.valueOf(mListLinks.subList(indexStart, indexEnd)));
 
@@ -226,7 +221,6 @@ public class RecycleViewFragment extends Fragment {
         };
 
         observable.subscribe(action);
-
 
 
     }
